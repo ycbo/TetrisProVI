@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <assert.h>
 
+
 class Tetromino
 {
     enum class Rotation
@@ -31,9 +32,14 @@ protected:
     const bool*  shape;
     const int    dimension;
     sf::Color    color;
+    sf::Vector2f boardSize;
     sf::Vector2f boardPos;
     Rotation     currentRotation;
   //  std::vector<std::vector<unsigned char>>* matrix;
+
+    std::vector<std::vector<unsigned char>> GetShape();
+    sf::Vector2f CheckBoundary(std::vector<std::vector<unsigned char>> matrix,
+                               const std::vector<std::vector<unsigned char>>& shape);
 
 };
 

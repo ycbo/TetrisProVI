@@ -1,17 +1,20 @@
 #include "tetromino.hpp"
 
 Tetromino::Tetromino(const bool* shape, const int dimension, const sf::Color& color, const sf::Vector2f& pos)
-                    : shape{ shape },
-                    dimension{ dimension },
-                    color{ color },
-                    boardPos{ pos.x / 2 - dimension / 2, 0 },
-                    currentRotation{ Rotation::UP }
+    : shape { shape },
+    dimension { dimension },
+    color { color },
+    boardSize { pos },
+    boardPos { pos.x / 2 - dimension / 2, 0 },
+    currentRotation { Rotation::UP }
 {
 }
 
 void Tetromino::MoveDown()
 {
-    boardPos.y += 1;
+    if (boardPos.y + 1 < boardSize.y) {
+        boardPos.y += 1;
+    }
 }
 
 void Tetromino::RotateClockwise()
@@ -31,7 +34,26 @@ void Tetromino::RotateCounterClockwise()
 
 void Tetromino::Update(std::vector<std::vector<unsigned char>>& matrix)
 {
+    std::vector<std::vector<unsigned char>> currentShape = GetShape();
+
+    sf::Vector2f newBoardPos = CheckBoundary(matrix, currentShape);
+
     for (unsigned char x = 0; x < dimension; x++) {
+        for (unsigned char y = 0; y < dimension; y++) {
+            const bool cell = currentShape[x][y];
+
+            if ((x + boardPos.x >= boardSize.x) || (y + boardPos.y >= boardSize.y)) break;
+            matrix[x + boardPos.x][y + boardPos.y] = cell;
+        }
+    }
+}
+
+std::vector<std::vector<unsigned char>> Tetromino::GetShape()
+{
+    std::vector<std::vector<unsigned char>> currentShape(dimension, std::vector<unsigned char>(dimension));
+    // Column
+    for (unsigned char x = 0; x < dimension; x++) {
+        // Row
         for (unsigned char y = 0; y < dimension; y++) {
             bool cell = false;
 
@@ -50,7 +72,35 @@ void Tetromino::Update(std::vector<std::vector<unsigned char>>& matrix)
                     break;
             }
 
-            matrix[x + boardPos.x][y + boardPos.y] = cell;
+            currentShape[x][y] = cell;
         }
     }
+    return currentShape;
+}
+
+sf::Vector2f Tetromino::CheckBoundary(std::vector<std::vector<unsigned char>> matrix, const std::vector<std::vector<unsigned char>>& shape)
+{
+    // Check the first column
+    unsigned char maxRow = dimension;
+
+    if (boardPos.y + dimension > boardSize.y) {
+        for (char row = dimension - 1; row >= 0; row--) {
+            bool emptyRow = true;
+            for (char col = 0; col < dimension; col++) {
+                if (shape[col][row]) {
+                    emptyRow &= false;
+                }
+            }
+            if (emptyRow) { maxRow--; }
+            else { break; }
+        }
+    }
+
+    if (boardPos.y == 18) {
+        bool stop = true;
+    }
+    if (boardPos.y + maxRow > boardSize.y) {
+        boardPos.y = boardSize.y - 1 - (dimension - maxRow);
+    }
+    return sf::Vector2f();
 }

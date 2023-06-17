@@ -45,7 +45,7 @@ int main()
                             break;
                         }
                         // Clockweise
-                        case sf::Keyboard::X:
+                        case sf::Keyboard::C:
                         {
                             tetromino->RotateClockwise();
                             break;
